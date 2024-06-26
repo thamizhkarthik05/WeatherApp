@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Weather.png">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6dd5fa, #2980b9);
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ensure app fills at least the viewport height */
+            overflow: hidden; /* Prevent scroll bars from appearing */
+            position: relative;
+        }
+
+        /* Cloud animation */
+        .cloud {
+            position: absolute;
+            top: 10%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/asfalt-light.png') repeat;
+            animation: moveCloud 20s linear infinite;
+        }
+
+        @keyframes moveCloud {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        header {
+            width: 50%; /* Take up the left half of the page */
+            float: left; /* Align to the left */
+            text-align: left; /* Align text to the left */
+            padding-left: 20px; /* Add padding for better spacing */
+        }
+
+        #app {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            width: 40%;
+            text-align: center; /* Center align content */
+            overflow-y: auto; /* Enable scrolling if content exceeds height */
+        }
+
+        h1 {
+            margin-top: 25px;
+            font-size: 2.5em;
+            color: black;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+            padding: 10px;
+        }
+
+        input {
+            padding: 10px;
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            outline: none;
+            font-size: 1em;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #2980b9;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #1f5d8a;
+        }
+
+        #weatherData {
+            margin-top: 20px;
+            text-align: left; /* Align weather data text */
+        }
+
+        h2 {
+            margin: 10px 0;
+            font-size: 1.8em;
+            color: #2980b9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 1.2em;
+            color: white;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            background: #000;
+            color: #fff;
+            font-size: 0.9em;
+            z-index: 1;
+        }
+
+        .cloud img {
+            position: absolute;
+            width: 100px;
+            height: auto;
+            bottom: 0;
+            animation: float 20s infinite linear;
+            display: none; /* Initially hide weather condition images */
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-100%) translateY(0); }
+            50% { transform: translateX(100%) translateY(-20px); }
+            100% { transform: translateX(-100%) translateY(0); }
+        }
+
+        .cloud img:nth-child(2) {
+            animation-delay: 10s;
+        }
+
+        .cloud img:nth-child(3) {
+            animation-delay: 5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="cloud">
+        <img id="weatherImg" src="" style="left: 30%; width: 150px;">
+    </div>
+    <header>
+        <h1>Welcome to Weather App</h1>
+    </header>
+    <div id="app">
+        <input type="text" id="locationInput" placeholder="Enter location">
+        <button id="getWeatherBtn">Get Weather</button>
+        <div id="weatherData"></div>
+    </div>
+    <footer>
+        <p>Developed By Thamizh Groups</p>
+    </footer>
+    <script>
+        document.getElementById('getWeatherBtn').addEventListener('click', function() {
+            const location = document.getElementById('locationInput').value;
+            const apiKey = '8f1cf5ec47b6635d198494f7aafb1a34'; // Replace with your OpenWeatherMap API key
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cod === 200) {
+                        const weatherData = `
+                            <h2>${data.name}</h2>
+                            <p>Temperature: ${data.main.temp}°C</p>
+                            <p>Weather: ${data.weather[0].description}</p>
+                        `;
+                        document.getElementById('weatherData').innerHTML = weatherData;
+
+                        // Display weather condition image if applicable
+                        const weatherCondition = data.weather[0].main;
+                        displayWeatherImage(weatherCondition);
+                    } else {
+                        document.getElementById('weatherData').innerHTML = '<p>Location not found.</p>';
+                        document.getElementById('weatherImg').style.display = 'none'; // Hide image if location not found
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('weatherData').innerHTML = '<p>Error fetching data.</p>';
+                    document.getElementById('weatherImg').style.display = 'none'; // Hide image on error
+                });
+        });
+
+        function displayWeatherImage(weatherCondition) {
+            const imgElement = document.getElementById('weatherImg');
+            imgElement.style.display = 'block'; 
+        }
+    </script>
+</body>
+</html>
